@@ -1,0 +1,3 @@
+window "My GUI!"  400 500
+button "Click me"
+label "Hello, world!"
