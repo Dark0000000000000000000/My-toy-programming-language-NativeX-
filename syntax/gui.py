@@ -1,11 +1,9 @@
 import tkinter as tk
 import shlex
 
-# хранение элементов
 gui_objects = {}
 
 def parse_args(parts):
-    """Парсит ключевые параметры вида x=50 y=40 text="Hello" """
     args = {}
     for p in parts:
         if '=' in p:
@@ -23,7 +21,6 @@ def handle(line, vars, out):
 
     cmd = parts[0]
 
-    # -------- window --------
     if cmd == "gui_window":
         if len(parts) < 2:
             out.insert("end", "Error: gui_window <name>\n")
@@ -37,7 +34,6 @@ def handle(line, vars, out):
         vars[name] = win
         return True
 
-    # -------- label --------
     if cmd == "gui_label":
         if len(parts) < 3:
             out.insert("end", "Error: gui_label <parent> <text> ...\n")
@@ -99,13 +95,12 @@ def handle(line, vars, out):
 
         btn.place(x=x, y=y)
 
-        # сохранить объект если есть id=
         if "id" in args:
             gui_objects[args["id"]] = btn
 
         return True
 
-    # -------- rectangle (для мини игр!) --------
+    # -------- rectangle --------
     if cmd == "gui_rect":
         parent = parts[1]
         args = parse_args(parts[2:])
@@ -162,7 +157,6 @@ def handle(line, vars, out):
             out.insert("end", f"Unknown event: {event}\n")
             return True
 
-        # ОБРАБОТЧИК
         def callback(e, handler=handler):
             vars["last_event"] = e
             vars["execution_state"]["paused_for_input"] = False
