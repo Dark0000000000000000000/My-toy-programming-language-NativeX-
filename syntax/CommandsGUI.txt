@@ -1,0 +1,8 @@
+    gui_create <name> <width> <height> [bg_color] [title] - created window
+    gui_button <parent> <text> <x> <y> <width> <height> [bg] [fg] [font] [var]
+    gui_label <parent> <text> <x> <y> <width> <height> [bg] [fg] [font] - Label
+    gui_entry <parent> <x> <y> <width> <height> <varname> [bg] [fg] [font] - Entry
+    gui_checkbox <parent> <text> <x> <y> <width> <height> <varname> - Checkbox
+    gui_combobox <parent> <x> <y> <width> <height> <varname> <option1,option2,...> - Combobox
+    gui_show <name> - Show window
+    gui_hide <name> - Hide the window
