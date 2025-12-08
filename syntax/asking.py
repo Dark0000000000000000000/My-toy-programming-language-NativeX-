@@ -1,36 +1,38 @@
 import tkinter as tk
 
 def handle(line, variables, output_widget):
-    if not line.startswith("asking"):
+    if not line.lower().startswith('asking '):
         return False
+    
+    try:
+        args_line = line[7:].strip()
+        if not args_line:
+            raise ValueError("Syntax Error: 'Asking' requires a variable name.")
 
-    state = variables.get("execution_state")
-    if not state:
-        return False
+        parts = args_line.split(' ', 1)
+        var_name = parts[0].strip()
+        prompt = parts[1].strip() if len(parts) > 1 else ""
 
-    content = line[6:].strip().strip('"').strip("'")
+        if not var_name.isidentifier():
+            raise ValueError(f"Syntax Error: '{var_name}' is not a valid variable name.")
 
-    def submit_input(event=None):
-        user_input = entry.get()
-        variables['last_input'] = user_input
-        entry.destroy()
-        submit_btn.destroy()
-        state['paused_for_input'] = False
-        if 'run_next_line' in variables and variables['run_next_line']:
-            variables['run_next_line'](output_widget)
+        state = variables.get('execution_state')
+        if not state:
+            raise RuntimeError("Internal Error: execution_state not found.")
+            
+        if prompt:
+            eval_expr = variables.get('eval_expr')
+            display_prompt = eval_expr(prompt)
+            output_widget.config(state='normal')
+            output_widget.insert(tk.END, str(display_prompt))
 
-    output_widget.config(state='normal')
-    output_widget.insert(tk.END, content + "\n")
-    output_widget.config(state='disabled')
-
-    root = variables.get("root")
-    entry = tk.Entry(root, bg="#333", fg="#fff", insertbackground='white')
-    entry.pack(pady=5)
-    entry.focus_set()
-    entry.bind("<Return>", submit_input)
-
-    submit_btn = tk.Button(root, text="OK", command=submit_input)
-    submit_btn.pack(pady=2)
-
-    state['paused_for_input'] = True
-    return True
+        state['paused_for_input'] = True
+        state['input_var'] = var_name
+        
+        return True 
+        
+    except Exception as e:
+        output_widget.config(state='normal')
+        output_widget.insert(tk.END, f"Error processing 'Asking': {e}\n")
+        variables['execution_state']['running'] = False
+        return True
