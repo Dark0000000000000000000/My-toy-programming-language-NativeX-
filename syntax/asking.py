@@ -1,11 +1,6 @@
-# syntax/asking.py
 import tkinter as tk
 
 def handle(line, variables, output_widget):
-    """
-    Плагин для команды asking:
-    asking "Введите текст" -> переменная
-    """
     if not line.startswith("asking"):
         return False
 
@@ -13,7 +8,6 @@ def handle(line, variables, output_widget):
     if not state:
         return False
 
-    # Разбираем строку
     try:
         content, var_name = line[6:].split("->")
         content = content.strip().strip('"').strip("'")
@@ -25,7 +19,6 @@ def handle(line, variables, output_widget):
         state['running'] = False
         return True
 
-    # Создаём поле ввода
     def submit_input():
         user_input = entry.get()
         variables[var_name] = user_input
@@ -38,7 +31,6 @@ def handle(line, variables, output_widget):
     output_widget.insert(tk.END, content + "\n")
     output_widget.config(state='disabled')
 
-    # Помещаем Entry в окно root
     root = variables.get("root")
     entry = tk.Entry(root, bg="#333", fg="#fff", insertbackground='white')
     entry.pack(pady=5)
@@ -50,6 +42,4 @@ def handle(line, variables, output_widget):
     state['paused_for_input'] = True
     return True
 
-# Важно: функция run_next_line должна быть доступна в глобальной области видимости
-# Обычно её можно добавить в переменные: variables['run_next_line'] = run_next_line
 run_next_line = None
