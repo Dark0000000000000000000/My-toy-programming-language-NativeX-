@@ -9,23 +9,21 @@ def handle(line, variables, output_widget):
         return False
 
     try:
-        content, var_name = line[6:].split("->")
-        content = content.strip().strip('"').strip("'")
-        var_name = var_name.strip()
-    except Exception as e:
+        content = line[6:].strip().strip('"').strip("'")
+    except:
         output_widget.config(state='normal')
-        output_widget.insert(tk.END, f"Error parsing asking: {e}\n")
+        output_widget.insert(tk.END, "Error parsing asking\n")
         output_widget.config(state='disabled')
         state['running'] = False
         return True
 
     def submit_input():
         user_input = entry.get()
-        variables[var_name] = user_input
+        variables['last_input'] = user_input
         entry.destroy()
         submit_btn.destroy()
         state['paused_for_input'] = False
-        run_next_line(output_widget)
+        variables['run_next_line'](output_widget)
 
     output_widget.config(state='normal')
     output_widget.insert(tk.END, content + "\n")
