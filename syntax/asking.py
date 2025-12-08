@@ -1,31 +1,55 @@
+# syntax/asking.py
 import tkinter as tk
-import shlex
 
 def handle(line, variables, output_widget):
-    if " = asking " not in line:
+    """
+    Плагин для команды asking:
+    asking "Введите текст" -> переменная
+    """
+    if not line.startswith("asking"):
         return False
-    
-    try:
-        var, prompt_expr = line.split(" = asking ", 1)
-        var = var.strip()
-        
-        parts = shlex.split(prompt_expr.strip())
-        prompt_text = parts[0] if parts else "Enter the value:"
-            
-        output_widget.insert(tk.END, prompt_text)
-        
-        
-        
-        if 'execution_state' in variables:
-            state = variables['execution_state']
-        else:
-            state = {} 
 
-        variables['execution_state']['paused_for_input'] = True
-        variables['execution_state']['input_var'] = var
-        
-        return True
-    
+    state = variables.get("execution_state")
+    if not state:
+        return False
+
+    # Разбираем строку
+    try:
+        content, var_name = line[6:].split("->")
+        content = content.strip().strip('"').strip("'")
+        var_name = var_name.strip()
     except Exception as e:
-        output_widget.insert(tk.END, f"Error in 'asking' the syntax: {e}\n")
+        output_widget.config(state='normal')
+        output_widget.insert(tk.END, f"Error parsing asking: {e}\n")
+        output_widget.config(state='disabled')
+        state['running'] = False
         return True
+
+    # Создаём поле ввода
+    def submit_input():
+        user_input = entry.get()
+        variables[var_name] = user_input
+        entry.destroy()
+        submit_btn.destroy()
+        state['paused_for_input'] = False
+        run_next_line(output_widget)
+
+    output_widget.config(state='normal')
+    output_widget.insert(tk.END, content + "\n")
+    output_widget.config(state='disabled')
+
+    # Помещаем Entry в окно root
+    root = variables.get("root")
+    entry = tk.Entry(root, bg="#333", fg="#fff", insertbackground='white')
+    entry.pack(pady=5)
+    entry.focus_set()
+
+    submit_btn = tk.Button(root, text="OK", command=submit_input)
+    submit_btn.pack(pady=2)
+
+    state['paused_for_input'] = True
+    return True
+
+# Важно: функция run_next_line должна быть доступна в глобальной области видимости
+# Обычно её можно добавить в переменные: variables['run_next_line'] = run_next_line
+run_next_line = None
